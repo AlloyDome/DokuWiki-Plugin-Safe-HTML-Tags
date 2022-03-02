@@ -1,0 +1,7 @@
+base   safehtmltags
+author AlloyDome
+email  
+date   2022-3-2
+name   Safe HTML Tags
+desc   ---
+url    ---
