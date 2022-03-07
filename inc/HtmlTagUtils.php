@@ -45,7 +45,7 @@ class HtmlTagUtils{
 					return $regex . '\s*?/>';	// TODO: 后续加入省略 “/” 的写法
 				}
 			} case self::START_TAG_NO_ATTRIBUTES_REGEX_MODE: 
-			case self:SELF_CLOSLING_TAG_NO_ATTRIBUTES_REGEX_MODE: {
+			case self::SELF_CLOSLING_TAG_NO_ATTRIBUTES_REGEX_MODE: {
 				$regex = "<$tagName";
 				if ($mode === self::START_TAG_NO_ATTRIBUTES_REGEX_MODE) {
 					return $regex . '>(?=.*?</' . $tagName . '>)';
@@ -61,7 +61,7 @@ class HtmlTagUtils{
 	}
 
 	public static function removeCharEntities($s) {
-		return str_replace(array('<', '>', '/', '&', ' ', ';', '"', '\''), '', $s);
+		return str_replace(array('<', '>', '/', '&', ' ', ';', '"', '\'', '='), '', $s);
 	}
 
 	public static function tagAttributeTidier($s, $tagName = false, $mode = false) {
@@ -123,7 +123,7 @@ class HtmlTagUtils{
 					switch (substr($firstSpecialChar[1], 0, 1)) {
 						case '"': 
 						case '\'': {
-							$tokens[] = array('s', substr($firstSpecialChar[1]), 1, -1);
+							$tokens[] = array('s', substr($firstSpecialChar[1], 1, -1));
 							break;
 						} default: {
 							$tokens[] = array($firstSpecialChar[1], $firstSpecialChar[1]);
@@ -164,11 +164,15 @@ class HtmlTagUtils{
 				) {
 					$insCount++;
 					$instructions[$insCount] = array(0 => $token[1], 1 => '');
+					$lastTokenType = self::LAST_TOKEN_ATTRIBUTE_NAME;
 				} elseif ($lastTokenType == self::LAST_TOKEN_EQUAL) {
 					$instructions[$insCount][1] = $token[1];
+					$lastTokenType = self::LAST_TOKEN_ATTRIBUTE_VALUE;
 				}
 			}
 		}
+
+		$instructions[0]['attributeCount'] = $insCount;
 
 		if ($instructions[0]['tagMode'] === false) {
 			$instructions[0]['tagMode'] = self::SELF_CLOTHING_TAG_RENDERING_MODE;
@@ -177,44 +181,41 @@ class HtmlTagUtils{
 		return $instructions;
 	}
 
-	private static function tagAttributeRenderer($instructions, $tagName = false, $mode = false) {
+	private static function tagAttributeRenderer($instructions, $specifiedTagName = false, $mode = false) {
 		if ($mode == false) {
 			$mode = $instructions[0]['tagMode'];
 		}
 
-		if ($tagName != false) {
-			if ($tagName == '') {
-				$tagName = false;
+		if ($specifiedTagName == false || $specifiedTagName == '') {
+			if ($instructions[0]['attributeCount'] >= 1) {
+				$tagName = self::removeCharEntities($instructions[1][0]);
+				if ($tagName == '') {
+					$tagName = false;
+					return '';
+				}
 			} else {
-				$tagName = self::removeCharEntities($tagName);
+				$tagName = false;
+				return '';
 			}
+		} else {
+			$tagName = $specifiedTagName;
 		}
 
 		if ($instructions[0]['attributeCount'] == 0) {
-			if ($tagName == false) {
-				return '';
+			if ($mode == self::START_TAG_RENDERING_MODE) {
+				return "<$tagName>";
+			} elseif ($mode == self::SELF_CLOTHING_TAG_RENDERING_MODE) {
+				return "<$tagName />";
 			} else {
-				if ($mode == self::START_TAG_RENDERING_MODE) {
-					return "<$tagName>";
-				} elseif ($mode == self::SELF_CLOTHING_TAG_RENDERING_MODE) {
-					return "<$tagName />";
-				} else {
-					return '';
-				}
+				return '';
 			}
 		} else {
-			$tagText = '<';
+			$tagText = "<$tagName";
 			foreach ($instructions as $order => $instruction) {
-				if ($order == 1) {
-					if ($tagName == false) {
-						$tagText .= self::removeCharEntities($instruction[0]);
-					} else {
-						$tagText .= $tagName;
-					}
-				} else {
+				if ($order > 1 && self::removeCharEntities($instruction[0]) != '') {
 					$tagText .= ' ' . self::removeCharEntities($instruction[0]);
 					if ($instruction[1] != '') {
-						$tagText .= '=' . htmlentities($instruction[1]);
+						$tagText .= '="' . htmlentities($instruction[1]) . '"';
 					}
 				}
 			}
