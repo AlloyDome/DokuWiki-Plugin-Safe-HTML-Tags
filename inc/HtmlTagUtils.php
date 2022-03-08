@@ -18,24 +18,24 @@ class HtmlTagUtils{
 	public const START_TAG_REGEX_MODE 						= 1;
 	public const START_TAG_NO_ATTRIBUTES_REGEX_MODE			= 2;
 	public const END_TAG_REGEX_MODE 						= 3;
-	public const SELF_CLOSLING_TAG_REGEX_MODE 				= 4;
-	public const SELF_CLOSLING_TAG_NO_ATTRIBUTES_REGEX_MODE	= 5;
+	public const SELF_CLOSING_TAG_REGEX_MODE 				= 4;
+	public const SELF_CLOSING_TAG_NO_ATTRIBUTES_REGEX_MODE	= 5;
 
-	private const START_TAG_RENDERING_MODE		= 1;
-	private const SELF_CLOSLING_RENDERING_MODE	= 2;
+	public const START_TAG_RENDERING_MODE			= 1;
+	public const SELF_CLOSING_TAG_RENDERING_MODE	= 2;
 
-	private const LAST_TOKEN_ATTRIBUTE_NAME		= 1;
-	private const LAST_TOKEN_EQUAL				= 2;
-	private const LAST_TOKEN_ATTRIBUTE_VALUE	= 3;
-	private const LAST_TOKEN_TAG_START			= 4;
-	private const LAST_TOKEN_TAG_END			= 5;
+	protected const LAST_TOKEN_ATTRIBUTE_NAME	= 1;
+	protected const LAST_TOKEN_EQUAL			= 2;
+	protected const LAST_TOKEN_ATTRIBUTE_VALUE	= 3;
+	protected const LAST_TOKEN_TAG_START		= 4;
+	protected const LAST_TOKEN_TAG_END			= 5;
 
-	public static function tagRegex($tagName, $mode = self::SELF_CLOSLING_TAG_REGEX_MODE) {
+	public static function tagRegex($tagName, $mode = self::SELF_CLOSING_TAG_REGEX_MODE) {
 		$tagName = self::removeCharEntities($tagName);
 
 		switch ($mode) {
 			case self::START_TAG_REGEX_MODE:
-			case self::SELF_CLOSLING_TAG_REGEX_MODE: {
+			case self::SELF_CLOSING_TAG_REGEX_MODE: {
 				$regex = '<' . $tagName . '\s+?[^>/]*?' /* '(\s+?[^>"\'/=]+?(\s*?=\s*?("[^"]*?"|\'[^\']*?\'|[^>"\']*?|[^>"\'/=]+?))*?)*?\s*?' */ ;
 					// FIXME:	1、注释掉的表达式无法使用，我也不知道为啥，可能是因为 DokuWiki 会将子表达式的 “(”、“)” 转义
 					// 			2、注释掉的正则表达式会匹配到连等的属性，如 “attribute="1"="2"”
@@ -45,7 +45,7 @@ class HtmlTagUtils{
 					return $regex . '\s*?/>';	// TODO: 后续加入省略 “/” 的写法
 				}
 			} case self::START_TAG_NO_ATTRIBUTES_REGEX_MODE: 
-			case self::SELF_CLOSLING_TAG_NO_ATTRIBUTES_REGEX_MODE: {
+			case self::SELF_CLOSING_TAG_NO_ATTRIBUTES_REGEX_MODE: {
 				$regex = "<$tagName";
 				if ($mode === self::START_TAG_NO_ATTRIBUTES_REGEX_MODE) {
 					return $regex . '>(?=.*?</' . $tagName . '>)';
@@ -73,7 +73,7 @@ class HtmlTagUtils{
 	/**
 	 * 该函数不能对闭标签作解析
 	 */
-	private static function tagAttributeLexer($s) {
+	protected static function tagAttributeLexer($s) {
 		$isInSingleQuote = false;
 		$isInDoubleQuote = false;
 		$specialChars = array(' ', '=', '"', '\'', '<', '>', '/>');
@@ -137,7 +137,7 @@ class HtmlTagUtils{
 		return $tokens;
 	}
 
-	private static function tagAttributeParser($tokens) {
+	protected static function tagAttributeParser($tokens) {
 		$instructions = array(array('tagMode' => false, 'attributeCount' => 0));
 		$insCount = 0;
 		$lastTokenType = false;
@@ -147,7 +147,7 @@ class HtmlTagUtils{
 				$instructions[0]['tagMode'] = self::START_TAG_RENDERING_MODE;
 				break;
 			} elseif ($token[0] == '/>') {
-				$instructions[0]['tagMode'] = self::SELF_CLOTHING_TAG_RENDERING_MODE;
+				$instructions[0]['tagMode'] = self::SELF_CLOSING_TAG_RENDERING_MODE;
 				break;
 			} elseif ($token[0] == '=') {
 				if ($lastTokenType == self::LAST_TOKEN_ATTRIBUTE_NAME) {
@@ -175,13 +175,13 @@ class HtmlTagUtils{
 		$instructions[0]['attributeCount'] = $insCount;
 
 		if ($instructions[0]['tagMode'] === false) {
-			$instructions[0]['tagMode'] = self::SELF_CLOTHING_TAG_RENDERING_MODE;
+			$instructions[0]['tagMode'] = self::SELF_CLOSING_TAG_RENDERING_MODE;
 		}
 
 		return $instructions;
 	}
 
-	private static function tagAttributeRenderer($instructions, $specifiedTagName = false, $mode = false) {
+	protected static function tagAttributeRenderer($instructions, $specifiedTagName = false, $mode = false) {
 		if ($mode == false) {
 			$mode = $instructions[0]['tagMode'];
 		}
@@ -204,7 +204,7 @@ class HtmlTagUtils{
 		if ($instructions[0]['attributeCount'] == 0) {
 			if ($mode == self::START_TAG_RENDERING_MODE) {
 				return "<$tagName>";
-			} elseif ($mode == self::SELF_CLOTHING_TAG_RENDERING_MODE) {
+			} elseif ($mode == self::SELF_CLOSING_TAG_RENDERING_MODE) {
 				return "<$tagName />";
 			} else {
 				return '';
