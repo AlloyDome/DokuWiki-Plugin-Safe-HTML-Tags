@@ -14,12 +14,12 @@ if(!defined('DOKU_INC'))
 
 require_once(__DIR__ . '/../inc/init.php');
 
-class syntax_plugin_safehtmltags_cite extends syntax_plugin_GeneralSyntax {
-	protected $tagName = 'cite';
+class syntax_plugin_safehtmltags_blockquote extends syntax_plugin_GeneralSyntax {
+	protected $tagName = 'blockquote';
 	protected $isCouple = true;
 	protected $isSingle = false;
 
 	public function getPType() {
-		return 'normal';
+		return 'stack';
 	}
 }

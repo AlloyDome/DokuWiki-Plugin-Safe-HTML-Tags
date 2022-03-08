@@ -15,13 +15,9 @@ if(!defined('DOKU_INC'))
 require_once(__DIR__ . '/../inc/init.php');
 
 class syntax_plugin_safehtmltags_br extends syntax_plugin_GeneralSyntax {
-	public $tagName = 'br';
-	public $isCouple = false;
-	public $isSingle = true;
-
-	public function getType() {
-		return 'substition';
-	}
+	protected $tagName = 'br';
+	protected $isCouple = false;
+	protected $isSingle = true;
 
 	public function getPType() {
 		return 'normal';

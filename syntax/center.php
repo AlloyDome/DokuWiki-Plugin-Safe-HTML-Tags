@@ -15,13 +15,9 @@ if(!defined('DOKU_INC'))
 require_once(__DIR__ . '/../inc/init.php');
 
 class syntax_plugin_safehtmltags_center extends syntax_plugin_GeneralSyntax {
-	public $tagName = 'center';
-	public $isCouple = true;
-	public $isSingle = false;
-
-	public function getType() {
-		return 'substition';
-	}
+	protected $tagName = 'center';
+	protected $isCouple = true;
+	protected $isSingle = false;
 
 	public function getPType() {
 		return 'normal';
