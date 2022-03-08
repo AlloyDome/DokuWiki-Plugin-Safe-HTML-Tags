@@ -14,8 +14,8 @@ if(!defined('DOKU_INC'))
 
 require_once(__DIR__ . '/../inc/init.php');
 
-class syntax_plugin_safehtmltags_ruby extends syntax_plugin_GeneralSyntax {
-	protected $tagName = 'ruby';
+class syntax_plugin_safehtmltags_q extends syntax_plugin_GeneralSyntax {
+	protected $tagName = 'q';
 	protected $isCouple = true;
 	protected $isSingle = false;
 

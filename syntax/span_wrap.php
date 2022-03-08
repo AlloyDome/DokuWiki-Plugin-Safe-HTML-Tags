@@ -14,12 +14,6 @@ if(!defined('DOKU_INC'))
 
 require_once(__DIR__ . '/../inc/init.php');
 
-class syntax_plugin_safehtmltags_ruby extends syntax_plugin_GeneralSyntax {
-	protected $tagName = 'ruby';
-	protected $isCouple = true;
-	protected $isSingle = false;
-
-	public function getPType() {
-		return 'normal';
-	}
+class syntax_plugin_safehtmltags_span_wrap extends syntax_plugin_safehtmltags_span {
+	protected $realTagName = 'span';
 }
