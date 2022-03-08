@@ -14,8 +14,8 @@ if(!defined('DOKU_INC'))
 
 require_once(__DIR__ . '/../inc/init.php');
 
-class syntax_plugin_safehtmltags_dl extends syntax_plugin_GeneralSyntax {
-	protected $tagName = 'dl';
+class syntax_plugin_safehtmltags_h1 extends syntax_plugin_GeneralSyntax {
+	protected $tagName = 'h1';
 	protected $isCouple = true;
 	protected $isSingle = false;
 

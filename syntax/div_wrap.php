@@ -14,12 +14,6 @@ if(!defined('DOKU_INC'))
 
 require_once(__DIR__ . '/../inc/init.php');
 
-class syntax_plugin_safehtmltags_dl extends syntax_plugin_GeneralSyntax {
-	protected $tagName = 'dl';
-	protected $isCouple = true;
-	protected $isSingle = false;
-
-	public function getPType() {
-		return 'stack';
-	}
+class syntax_plugin_safehtmltags_div_wrap extends syntax_plugin_safehtmltags_div {
+	protected $realTagName = 'WRAP';
 }

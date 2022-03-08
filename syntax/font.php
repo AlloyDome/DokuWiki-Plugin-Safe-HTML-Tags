@@ -15,13 +15,9 @@ if(!defined('DOKU_INC'))
 require_once(__DIR__ . '/../inc/init.php');
 
 class syntax_plugin_safehtmltags_font extends syntax_plugin_GeneralSyntax {
-	public $tagName = 'font';
-	public $isCouple = true;
-	public $isSingle = false;
-
-	public function getType() {
-		return 'substition';
-	}
+	protected $tagName = 'font';
+	protected $isCouple = true;
+	protected $isSingle = false;
 
 	public function getPType() {
 		return 'normal';
