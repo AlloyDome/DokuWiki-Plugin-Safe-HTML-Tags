@@ -1,12 +1,12 @@
 <?php
 /**
- * 
+ * DokuWiki safehtmltags 插件 · DokuWiki Plugin Safe HTML Tags
  *
  * @license	MIT License
- * @author	
+ * @author	AlloyDome
  * 
- * @since	1.0.0, beta (------)
- * @version 1.0.0, beta (------)
+ * @since	1.0.0 (220311)
+ * @version	1.0.0 (220311)
  */
 
 if(!defined('DOKU_INC'))
@@ -14,6 +14,13 @@ if(!defined('DOKU_INC'))
 
 require_once(__DIR__ . '/../inc/init.php');
 
-class syntax_plugin_safehtmltags_span_wrap extends syntax_plugin_safehtmltags_span {
+class syntax_plugin_safehtmltags_span_wrap extends syntax_plugin_GeneralSyntax {
+	protected $tagName = 'wrap';
 	protected $realTagName = 'span';
+	protected $isCouple = true;
+	protected $isSingle = false;
+
+	public function getPType() {
+		return 'normal';
+	}
 }

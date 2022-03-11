@@ -1,12 +1,12 @@
 <?php
 /**
- * 
+ * DokuWiki safehtmltags 插件 · DokuWiki Plugin Safe HTML Tags
  *
  * @license	MIT License
- * @author	
+ * @author	AlloyDome
  * 
- * @since	1.0.0, beta (------)
- * @version 1.0.0, beta (------)
+ * @since	1.0.0 (220311)
+ * @version	1.0.0 (220311)
  */
 
 if(!defined('DOKU_INC'))
