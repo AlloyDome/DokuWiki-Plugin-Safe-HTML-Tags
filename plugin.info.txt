@@ -3,5 +3,5 @@ author AlloyDome
 email  
 date   2022-3-2
 name   Safe HTML Tags
-desc   ---
-url    ---
+desc   To insert some HTML tags without enabling HTMLOK.
+url    https://github.com/AlloyDome/DokuWiki-Plugin-Safe-HTML-Tags
