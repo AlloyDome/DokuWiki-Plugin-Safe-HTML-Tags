@@ -1,12 +1,12 @@
 <?php
 /**
- * 
+ * DokuWiki safehtmltags 插件 · DokuWiki Plugin Safe HTML Tags
  *
  * @license	MIT License
- * @author	
+ * @author	AlloyDome
  * 
- * @since	1.0.0, beta (------)
- * @version 1.0.0, beta (------)
+ * @since	1.0.0 (220311)
+ * @version	1.0.0 (220311)
  */
 
 namespace dokuwiki\lib\plugins\safehtmltags\inc;
@@ -42,7 +42,7 @@ class HtmlTagUtils{
 				if ($mode === self::START_TAG_REGEX_MODE) {
 					return $regex . '>(?=.*?</' . $tagName . '>)';
 				} else {
-					return $regex . '\s*?/>';	// TODO: 后续加入省略 “/” 的写法
+					return $regex . '\s*?/>';
 				}
 			} case self::START_TAG_NO_ATTRIBUTES_REGEX_MODE: 
 			case self::SELF_CLOSING_TAG_NO_ATTRIBUTES_REGEX_MODE: {
@@ -50,7 +50,7 @@ class HtmlTagUtils{
 				if ($mode === self::START_TAG_NO_ATTRIBUTES_REGEX_MODE) {
 					return $regex . '>(?=.*?</' . $tagName . '>)';
 				} else {
-					return $regex . '\s*?/>';	// TODO: 后续加入省略 “/” 的写法
+					return $regex . '\s*?/>';
 				}
 			} case self::END_TAG_REGEX_MODE: {
 				return "</$tagName>";
@@ -78,7 +78,7 @@ class HtmlTagUtils{
 		$isInDoubleQuote = false;
 		$specialChars = array(' ', '=', '"', '\'', '<', '>', '/>');
 
-		preg_replace('/\s+?/', ' ', $s = trim($s));	// 去除两侧空格，并将连续空格截短
+		preg_replace('/\s+?/', ' ', $s = trim($s));	// 去除两侧空格，并将连续空格截短 · Trim and replace multiple adjacent spaces with a single space
 		
 		$tokens = array();
 
