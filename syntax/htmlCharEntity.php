@@ -6,7 +6,7 @@
  * @author	AlloyDome
  * 
  * @since	1.0.0 (220311)
- * @version	1.0.0 (220311)
+ * @version	1.0.1 (220317)
  */
 
 if(!defined('DOKU_INC'))
@@ -45,11 +45,11 @@ class syntax_plugin_safehtmltags_htmlCharEntity extends DokuWiki_Syntax_Plugin {
 		if ($state == DOKU_LEXER_SPECIAL) {
 			switch ($format) {
 				case 'xhtml': {
-					$renderer->doc .= $data;
+					$renderer->doc .= $match;
 					return true;
 				} case 'metadata': {
 					if ($renderer->capture) {
-						$renderer->doc .= $data;
+						$renderer->doc .= $match;
 						return true;
 					}
 					return false;
