@@ -6,7 +6,7 @@
  * @author	AlloyDome
  * 
  * @since	1.0.0 (220311)
- * @version	1.0.0 (220311)
+ * @version	1.0.1 (220317)
  */
 
 if(!defined('DOKU_INC'))
@@ -25,17 +25,10 @@ class syntax_plugin_safehtmltags_htmlCharEntity extends DokuWiki_Syntax_Plugin {
 	public function connectTo($mode) {
 		$this->Lexer->addSpecialPattern('&\w+?;', $mode, 'plugin_safehtmltags_htmlCharEntity');	// 实体名称 · Entity name
 		$this->Lexer->addSpecialPattern('&#\d+?;', $mode, 'plugin_safehtmltags_htmlCharEntity');	// 实体编号（十进制） · Decimal
-		$this->Lexer->addSpecialPattern('&#x[\dA-Fa-f]+?;', $mode, 'plugin_safehtmltags_htmlCharEntity');	// 实体编号（十六进制）	· Hexadecimal
+		$this->Lexer->addSpecialPattern('&#[x|X][\dA-Fa-f]+?;', $mode, 'plugin_safehtmltags_htmlCharEntity');	// 实体编号（十六进制） · Hexadecimal
 	}
 
 	public function handle($match, $state, $pos, Doku_Handler $handler) {
-		if ($state == DOKU_LEXER_SPECIAL) {
-			if (strlen($match) > 4) {
-				if ($match[2] == 'x') {
-					return array($state, '&#' . hexdec(substr($match, 3, -1)) . ';');	// 十六进制转为十进制，其余情况不变 · Hex to dec
-				}
-			}
-		}
 		return array($state, $match);
 	}
 
@@ -45,11 +38,11 @@ class syntax_plugin_safehtmltags_htmlCharEntity extends DokuWiki_Syntax_Plugin {
 		if ($state == DOKU_LEXER_SPECIAL) {
 			switch ($format) {
 				case 'xhtml': {
-					$renderer->doc .= $data;
+					$renderer->doc .= $match;
 					return true;
 				} case 'metadata': {
 					if ($renderer->capture) {
-						$renderer->doc .= $data;
+						$renderer->doc .= $match;
 						return true;
 					}
 					return false;
