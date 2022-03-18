@@ -25,7 +25,7 @@ class syntax_plugin_safehtmltags_htmlCharEntity extends DokuWiki_Syntax_Plugin {
 	public function connectTo($mode) {
 		$this->Lexer->addSpecialPattern('&\w+?;', $mode, 'plugin_safehtmltags_htmlCharEntity');	// 实体名称 · Entity name
 		$this->Lexer->addSpecialPattern('&#\d+?;', $mode, 'plugin_safehtmltags_htmlCharEntity');	// 实体编号（十进制） · Decimal
-		$this->Lexer->addSpecialPattern('&#[x|X][\dA-Fa-f]+?;', $mode, 'plugin_safehtmltags_htmlCharEntity');	// 实体编号（十六进制） · Hexadecimal
+		$this->Lexer->addSpecialPattern('&#[xX][\dA-Fa-f]+?;', $mode, 'plugin_safehtmltags_htmlCharEntity');	// 实体编号（十六进制） · Hexadecimal
 	}
 
 	public function handle($match, $state, $pos, Doku_Handler $handler) {
