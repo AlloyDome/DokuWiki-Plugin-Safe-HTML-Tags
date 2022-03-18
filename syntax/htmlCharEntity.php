@@ -6,7 +6,7 @@
  * @author	AlloyDome
  * 
  * @since	1.0.0 (220311)
- * @version	1.0.1 (220317)
+ * @version	1.0.1 (220318)
  */
 
 if(!defined('DOKU_INC'))
