@@ -6,7 +6,7 @@
  * @author	AlloyDome
  * 
  * @since	1.0.0 (220311)
- * @version	1.0.0 (220311)
+ * @version	1.0.1 (220318)
  */
 
 use dokuwiki\lib\plugins\safehtmltags\inc as inc;
@@ -48,7 +48,7 @@ class syntax_plugin_GeneralSyntax extends DokuWiki_Syntax_Plugin {
 	}
 
 	public function accepts($mode) {
-		if ($mode == substr(get_class($this), 7)) {
+		if ($mode == substr(get_class($this), 7) /* || $mode == 'header' */ ) {
 			return true;
 		}
 		return parent::accepts($mode);
@@ -119,19 +119,14 @@ class syntax_plugin_GeneralSyntax extends DokuWiki_Syntax_Plugin {
 				$handler->_addCall('cdata', array($match), $pos);
 				break;
 			} case DOKU_LEXER_MATCHED:{
-				$title = trim($match);
-				$level = 7 - strspn($title, '=');
+				$header = trim($match);
+				$level = 7 - strspn($header, '=');
 				if($level < 1) {
 					$level = 1;
 				}
-				$title = trim($title, '=');
-				$title = trim($title);
+				$header = trim(trim($header, '='));
 
-				$handler->_addCall('header', array($title, $level, $pos), $pos);
-
-				if ($title && $level <= $conf['maxseclevel']) {
-					$handler->addPluginCall('wrap_closesection', array(), DOKU_LEXER_SPECIAL, $pos, '');
-				}
+				$handler->_addCall('header', array($header, $level, $pos), $pos);
 			}
 		}
 	}
