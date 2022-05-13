@@ -6,7 +6,7 @@
  * @author	AlloyDome
  * 
  * @since	1.0.0 (220311)
- * @version	1.0.0 (220311)
+ * @version	1.0.2 (220513)
  */
 
 namespace dokuwiki\lib\plugins\safehtmltags\inc;
@@ -30,30 +30,28 @@ class HtmlTagUtils{
 	protected const LAST_TOKEN_TAG_START		= 4;
 	protected const LAST_TOKEN_TAG_END			= 5;
 
-	public static function tagRegex($tagName, $mode = self::SELF_CLOSING_TAG_REGEX_MODE) {
+	public static function tagRegex($tagName, $mode = self::SELF_CLOSING_TAG_REGEX_MODE, $htmlPrefix = false) {
 		$tagName = self::removeCharEntities($tagName);
 
 		switch ($mode) {
 			case self::START_TAG_REGEX_MODE:
 			case self::SELF_CLOSING_TAG_REGEX_MODE: {
-				$regex = '<' . $tagName . '\s+?[^>/]*?' /* '(\s+?[^>"\'/=]+?(\s*?=\s*?("[^"]*?"|\'[^\']*?\'|[^>"\']*?|[^>"\'/=]+?))*?)*?\s*?' */ ;
-					// FIXME:	1、注释掉的表达式无法使用，我也不知道为啥，可能是因为 DokuWiki 会将子表达式的 “(”、“)” 转义
-					// 			2、注释掉的正则表达式会匹配到连等的属性，如 “attribute="1"="2"”
+				$regex = '<' . ($htmlPrefix ? 'html:' : '') . $tagName . '\s+?[^>/]*?';
 				if ($mode === self::START_TAG_REGEX_MODE) {
-					return $regex . '>(?=.*?</' . $tagName . '>)';
+					return $regex . '>(?=.*?</' . ($htmlPrefix ? 'html:' : '') . $tagName . '>)';
 				} else {
 					return $regex . '\s*?/>';
 				}
 			} case self::START_TAG_NO_ATTRIBUTES_REGEX_MODE: 
 			case self::SELF_CLOSING_TAG_NO_ATTRIBUTES_REGEX_MODE: {
-				$regex = "<$tagName";
+				$regex = '<' . ($htmlPrefix ? 'html:' : '') . $tagName;
 				if ($mode === self::START_TAG_NO_ATTRIBUTES_REGEX_MODE) {
-					return $regex . '>(?=.*?</' . $tagName . '>)';
+					return $regex . '>(?=.*?</' . ($htmlPrefix ? 'html:' : '') . $tagName . '>)';
 				} else {
 					return $regex . '\s*?/>';
 				}
 			} case self::END_TAG_REGEX_MODE: {
-				return "</$tagName>";
+				return '</'. ($htmlPrefix ? 'html:' : '') . $tagName . '>';
 			} default: {
 				return '';
 			}

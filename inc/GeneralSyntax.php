@@ -6,7 +6,7 @@
  * @author	AlloyDome
  * 
  * @since	1.0.0 (220311)
- * @version	1.0.1 (220318)
+ * @version	1.0.2 (220513)
  */
 
 use dokuwiki\lib\plugins\safehtmltags\inc as inc;
@@ -25,13 +25,45 @@ if (!defined('DOKU_PLUGIN'))
 class syntax_plugin_GeneralSyntax extends DokuWiki_Syntax_Plugin {
 	protected $tagName;
 	protected $realTagName = false;
+	protected $allowHtmlPrefix = true;
 	protected $isCouple;
 	protected $isSingle;
 
+	protected $tagRegex;
+	protected $pluginMode;
+
 	public function __construct() {
+		/* parent::__construct(); */
+
 		if ($this->realTagName == false) {
 			$this->realTagName = $this->tagName;
+		} elseif ($this->realTagName != $this->tagName) {
+			$this->allowHtmlPrefix = false;
 		}
+
+		$this->tagRegex = array();
+
+		for ($i = 0; $i <= 1; $i++) {
+			if ($i == 0 || ($i == 1 && $this->allowHtmlPrefix == true)){
+				$this->tagRegex['selfClosing'][$i] = inc\HtmlTagUtils::tagRegex(
+					$this->tagName, inc\HtmlTagUtils::SELF_CLOSING_TAG_REGEX_MODE, ($i == 1 ? true : false)
+				); 	// 0: <tag attribute='value' ... />, 1: <html:tag attribute='value' />
+				$this->tagRegex['selfClosingNoAttributes'][$i] = inc\HtmlTagUtils::tagRegex(
+					$this->tagName, inc\HtmlTagUtils::SELF_CLOSING_TAG_NO_ATTRIBUTES_REGEX_MODE, ($i == 1 ? true : false)
+				); 	// 0: <tag />, 1: <html:tag />
+				$this->tagRegex['start'][$i] = inc\HtmlTagUtils::tagRegex(
+					$this->tagName, inc\HtmlTagUtils::START_TAG_REGEX_MODE, ($i == 1 ? true : false)
+				); 	// 0: <tag attribute='value' ...>, 1: <html:tag attribute='value' ...>
+				$this->tagRegex['startNoAttributes'][$i] = inc\HtmlTagUtils::tagRegex(
+					$this->tagName, inc\HtmlTagUtils::START_TAG_NO_ATTRIBUTES_REGEX_MODE, ($i == 1 ? true : false)
+				); 	// 0: <tag>, 1: <html:tag>
+				$this->tagRegex['end'][$i] = inc\HtmlTagUtils::tagRegex(
+					$this->tagName, inc\HtmlTagUtils::END_TAG_REGEX_MODE, ($i == 1 ? true : false)
+				); 	// 0: </tag>, 1: </html:tag>
+			}
+		}
+		
+		$this->pluginMode = 'plugin_safehtmltags_' . $this->getPluginComponent();
 	}
 
 	public function getSort() {
@@ -55,41 +87,32 @@ class syntax_plugin_GeneralSyntax extends DokuWiki_Syntax_Plugin {
 	}
 
 	public function connectTo($mode) {
-		if ($this->isSingle == true) {
-			$this->Lexer->addSpecialPattern(
-				inc\HtmlTagUtils::tagRegex($this->tagName, inc\HtmlTagUtils::SELF_CLOSING_TAG_REGEX_MODE), 
-				$mode, 
-				'plugin_safehtmltags_' . $this->getPluginComponent()
-			);
-			$this->Lexer->addSpecialPattern(
-				inc\HtmlTagUtils::tagRegex($this->tagName, inc\HtmlTagUtils::SELF_CLOSING_TAG_NO_ATTRIBUTES_REGEX_MODE), 
-				$mode, 
-				'plugin_safehtmltags_' . $this->getPluginComponent()
-			);
-		}
-		if ($this->isCouple == true) {
-			$this->Lexer->addEntryPattern(
-				inc\HtmlTagUtils::tagRegex($this->tagName, inc\HtmlTagUtils::START_TAG_REGEX_MODE), 
-				$mode, 
-				'plugin_safehtmltags_' . $this->getPluginComponent());
-			$this->Lexer->addEntryPattern(
-				inc\HtmlTagUtils::tagRegex($this->tagName, inc\HtmlTagUtils::START_TAG_NO_ATTRIBUTES_REGEX_MODE), 
-				$mode, 
-				'plugin_safehtmltags_' . $this->getPluginComponent()
-			);
+		for ($i = 0; $i <= 1; $i++) {
+			if ($i == 0 || ($i == 1 && $this->allowHtmlPrefix == true)) {
+				if ($this->isSingle == true) {
+					$this->Lexer->addSpecialPattern($this->tagRegex['selfClosing'][$i], $mode, $this->pluginMode . ($i == 1 ? '_htmlPrefixAlt' : ''));	// 0: <tag attribute='value' ... />, 1: <html:tag attribute='value' />
+					$this->Lexer->addSpecialPattern($this->tagRegex['selfClosingNoAttributes'][$i], $mode, $this->pluginMode . ($i == 1 ? '_htmlPrefixAlt' : ''));	// 0: <tag />, 1: <html:tag />
+				}
+				if ($this->isCouple == true) {
+					$this->Lexer->addEntryPattern($this->tagRegex['start'][$i], $mode, $this->pluginMode . ($i == 1 ? '_htmlPrefixAlt' : ''));	// 0: <tag attribute='value' ...>, 1: <html:tag attribute='value' ...>
+					$this->Lexer->addEntryPattern($this->tagRegex['startNoAttributes'][$i], $mode, $this->pluginMode . ($i == 1 ? '_htmlPrefixAlt' : ''));	// 0: <tag>, 1: <html:tag>
+				}
+			}
 		}
 	}
 
 	public function postConnect() {
 		if ($this->isCouple == true) {
-			$this->Lexer->addExitPattern(
-				inc\HtmlTagUtils::tagRegex($this->tagName, inc\HtmlTagUtils::END_TAG_REGEX_MODE), 
-				'plugin_safehtmltags_' . $this->getPluginComponent()
-			);
-			$this->Lexer->addPattern(
-				'[ \t]*={2,}[^\n]+={2,}[ \t]*(?=\n)', 
-				'plugin_safehtmltags_' . $this->getPluginComponent()
-			);
+			for ($i = 0; $i <= 1; $i++) {
+				if ($i == 0 || ($i == 1 && $this->allowHtmlPrefix == true)) {
+					$this->Lexer->addExitPattern($this->tagRegex['end'][$i], $this->pluginMode . ($i == 1 ? '_htmlPrefixAlt' : ''));	// 0: </tag>, 1: </html:tag>
+					if ($i == 1) {
+						$this->Lexer->mapHandler($this->pluginMode . '_htmlPrefixAlt', $this->pluginMode);
+							// "plugin_safehtmltags_***_htmlPrefixAlt" and "plugin_safehtmltags_***" should be processed in the same way
+					}
+				}
+			}		
+			$this->Lexer->addPattern('[ \t]*={2,}[^\n]+={2,}[ \t]*(?=\n)', $this->pluginMode);
 		}
 	}
 
